@@ -168,6 +168,24 @@ public class WWWClient
         }
     }
 
+    public void SetCommonHandler(FinishedDelegate onDone = null, FinishedDelegate onFail = null, DisposedDelegate onDispose = null)
+    {
+        if (onDone != null)
+            this.OnDone = onDone;
+        else
+            this.OnDone = result => Debug.Log(result.text);
+
+        if (onFail != null)
+            this.OnFail = onFail;
+        else
+            this.OnFail = result => Debug.Log(result.error);
+
+        if (onDispose != null)
+            this.OnDisposed = onDispose;
+        else
+            this.OnDisposed = () => Debug.Log("Connect out time");
+    }
+
     private IEnumerator RequestCoroutine()
     {
         if (mForm.data.Length > 0)

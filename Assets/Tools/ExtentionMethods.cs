@@ -373,7 +373,7 @@ public static class ExtentionMethods
     #endregion
 
     #region Button
-    public static void DisableSeconds(this Button button, float duration)
+    public static void DisableSeconds(this Button button, float duration = 1f)
     {
         button.interactable = false;
         button.StartCoroutine( DelayToInvoke.DelayToInvokeDo(() => {
