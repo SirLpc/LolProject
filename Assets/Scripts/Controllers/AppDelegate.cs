@@ -4,10 +4,17 @@ using System.Collections;
 public class AppDelegate : MonoBehaviour
 {
     public LogInCanvasControl loginCanvas;
+    public LobbyCanvasControl lobbyCanvas;
 
-	void Start ()
+    void Awake()
     {
-        loginCanvas.Show();
+        Application.runInBackground = true;
+    }
+
+    void Start ()
+    {
+        //loginCanvas.Show();
+        lobbyCanvas.Show();
 	}
 	
 }

@@ -5,11 +5,6 @@ using System;
 
 public class LPC_GameManager : MonoBehaviour {
 
-    void Awake()
-    {
-        Application.runInBackground = true;
-    }
-
 	void Start () 
 	{
 		user.Name = "Xiaohao";
@@ -27,13 +22,14 @@ public class LPC_GameManager : MonoBehaviour {
 		if (GUILayout.Button("StartServer")) 
 		{
 			LPC_GameServer.DefaultServer.StartServer();
-		}
+            LPC_GameServer.DefaultServer.RegisterHost("Card", "XiaoHao's Doudizhu");
+        }
 
 		if (GUILayout.Button("RequestRoom")) 
 		{
 			LPC_GameServer.DefaultServer.StartRequestRoom((HostData[] list)=>{
 				this.room_list = list;
-			});
+			}, "Card");
 		}
 
 		if (this.room_list != null) {

@@ -68,12 +68,16 @@ namespace AssemblyCSharp
 			//start...
 			Network.InitializeServer(1000,25000,!Network.HavePublicAddress());
 
-			//register a game
-			MasterServer.RegisterHost("Card","XiaoHao's Doudizhu");
-
 			return true;
 		}
 
+        public bool RegisterHost(string gameType, string gameName)
+        {
+            //register a game
+            MasterServer.RegisterHost(gameType, gameName);
+
+            return true;
+        }
 
 		public delegate void RequestRoomComplete(HostData[] list);
 		private RequestRoomComplete complete_block = null;
@@ -86,11 +90,11 @@ namespace AssemblyCSharp
 			}
 		}
 
-		public void StartRequestRoom(RequestRoomComplete block)
+		public void StartRequestRoom(RequestRoomComplete block, string gameTypeName)
 		{
 			LPC_GameServer.DefaultServer.CompleteBlock = block;
 
-			MasterServer.RequestHostList("Card");
+			MasterServer.RequestHostList(gameTypeName);
 		}
 
 

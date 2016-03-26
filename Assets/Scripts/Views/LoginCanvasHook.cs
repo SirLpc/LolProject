@@ -6,7 +6,7 @@ public class LoginCanvasHook : MonoBehaviour
 {
     public delegate void CanvasHook();
 
-    public CanvasHook OnLogInHook;
+    public CanvasHook OnClickLogInHook;
 
     public Text userNameInput;
     public Text serverNameInput;
@@ -16,7 +16,7 @@ public class LoginCanvasHook : MonoBehaviour
 
     private void Awake()
     {
-        loginButton.onClick.AddListener(UILogIn);
+        loginButton.onClick.AddListener(btnLogIn_Click);
     }
 
     public string GetUserName()
@@ -35,12 +35,12 @@ public class LoginCanvasHook : MonoBehaviour
         serverNameDropdown.AddOptions(names);
     }
 
-    public void UILogIn()
+    private void btnLogIn_Click()
     {
         loginButton.DisableSeconds();
 
-        if (OnLogInHook != null)
-            OnLogInHook.Invoke();
+        if (OnClickLogInHook != null)
+            OnClickLogInHook.Invoke();
     }
 
 }
