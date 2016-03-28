@@ -9,6 +9,7 @@ public class LobbyCanvasControl : CanvasControl
 
     private LOL_UserInfo user = new LOL_UserInfo();
     private HostData[] room_list = null;
+    private bool isConnected = false;
 
     public override void Show()
     {
@@ -21,6 +22,7 @@ public class LobbyCanvasControl : CanvasControl
         hooks.OnClickStartServerHook = UIStartServer;
         hooks.OnClickCreateRoomHook = UICreateRoom;
         hooks.OnClickRefreshRoomHook = UIRefreshRoom;
+        hooks.BindJoinRoomHook = UIJoinRoom;
 
         user.Name = "Xiaohao";
         user.Age = 18;
@@ -49,5 +51,13 @@ public class LobbyCanvasControl : CanvasControl
         }, hooks.GetGameTypeName());
     }
 
+    private void UIJoinRoom(HostData roomData)
+    {
+        LPC_GameServer.DefaultServer.JoinHostRoom(roomData, (int state) =>
+        {
+            isConnected = state == 0;
+            DebugManager.DefaultManager.Log("join success");
+        });
+    }
     
 }

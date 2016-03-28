@@ -11,7 +11,7 @@ public class LobbyRoomItemView : MonoBehaviour
         string roomName = data.gameName;
         int limit = data.playerLimit;
         int curNum = data.connectedPlayers;
-        roomText.text = string.Format("{0}||{1}/{2}", roomName, curNum, limit);
+        roomText.text = string.Format("   {0}||{1}/{2}", roomName, curNum, limit);
     }
 
 }

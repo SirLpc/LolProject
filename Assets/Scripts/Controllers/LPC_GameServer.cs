@@ -66,7 +66,7 @@ namespace AssemblyCSharp
 		public bool StartServer()
 		{
 			//start...
-			Network.InitializeServer(1000,25000,!Network.HavePublicAddress());
+			Network.InitializeServer(10,25000,!Network.HavePublicAddress());
 
 			return true;
 		}

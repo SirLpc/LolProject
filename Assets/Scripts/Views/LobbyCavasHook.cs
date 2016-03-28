@@ -9,6 +9,7 @@ public class LobbyCavasHook : MonoBehaviour
     public CanvasHook OnClickStartServerHook;
     public CanvasHook OnClickCreateRoomHook;
     public CanvasHook OnClickRefreshRoomHook;
+    public System.Action<HostData> BindJoinRoomHook;
 
     public Button startServerButton;
     public Button createRoomButton;
@@ -28,6 +29,14 @@ public class LobbyCavasHook : MonoBehaviour
         refreshRoomButton.onClick.AddListener(btnRefreshRoom_Click);
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            AssemblyCSharp.LPC_GameServer.DefaultServer.SendGameMessage("sssss");
+        }
+    }
+
     public string GetGameTypeName()
     {
         return gameTypeName.text;
@@ -40,12 +49,23 @@ public class LobbyCavasHook : MonoBehaviour
 
     public void RefreshRoomView(HostData[] roomDataS)
     {
+        LobbyRoomItemView[] rooms = roomContentContainer.GetComponentsInChildren<LobbyRoomItemView>();
+        for (int i = 0; i < rooms.Length; ++i)
+        {
+            GameObject.Destroy(rooms[i].gameObject);
+        }
+
         for (int i = 0; i < roomDataS.Length; i++)
         {
             GameObject go = GameObject.Instantiate(roomItemPref);
             go.transform.SetParent(roomContentContainer, false);
             LobbyRoomItemView lriv = go.GetComponent<LobbyRoomItemView>();
-            lriv.InitRoomItem(roomDataS[i]);
+            HostData hd = new HostData();
+            hd = roomDataS[i];
+            lriv.InitRoomItem(hd);
+            Button btn = go.GetComponent<Button>();
+            if(BindJoinRoomHook != null)
+                btn.onClick.AddListener(() => BindJoinRoomHook(hd));
         }
 
         float h = viewPortContainer.rect.height;
