@@ -37,7 +37,7 @@ namespace AssemblyCSharp
 			}
 		}
 
-		private static NetworkView DefalutNetworkView
+		public static NetworkView DefalutNetworkView
 		{
 			get{
 				return s_LPC_NetworkView;
@@ -121,14 +121,34 @@ namespace AssemblyCSharp
 			DebugManager.DefaultManager.Log(message);
 		}
 
-		#region Behaviour Actions
+        private RectTransform[] arrayOfSeatPos;
+        GameObject playerPref;
+        public void SpawnPlayerToSeat_RPC(RectTransform[] arrayOfSeatPos, GameObject playerPref)
+        {
+            this.arrayOfSeatPos = arrayOfSeatPos;
+            this.playerPref = playerPref;
+            LPC_GameServer.DefalutNetworkView.RPC("SpawnPlayerToSeat", RPCMode.AllBuffered,
+                UserInfo.DefaultUser.Order, UserInfo.DefaultUser.Name);
+        } 
+        [RPC]
+        private void SpawnPlayerToSeat(int order, string userName)
+        {
+            RectTransform seatPos = arrayOfSeatPos[order];
+            GameObject go = GameObject.Instantiate(playerPref, seatPos.position,
+                Quaternion.identity) as GameObject;
+            go.transform.SetParent(seatPos, true);
+            SelectHeroItemView shiv = go.GetComponent<SelectHeroItemView>();
+            shiv.InitItem(userName);
+        }
+
+        #region Behaviour Actions
 
 
-		/// <summary>
-		/// some event notification from master server
-		/// </summary>
-		/// <param name="ev">Ev.</param>
-		public void OnMasterServerEvent(MasterServerEvent ev)
+        /// <summary>
+        /// some event notification from master server
+        /// </summary>
+        /// <param name="ev">Ev.</param>
+        public void OnMasterServerEvent(MasterServerEvent ev)
 		{
 			switch (ev) {
 			case MasterServerEvent.RegistrationSucceeded:
@@ -159,7 +179,6 @@ namespace AssemblyCSharp
 
 		}
 
-
 		public void OnPlayerConnected(NetworkPlayer player)
 		{
 
@@ -169,6 +188,7 @@ namespace AssemblyCSharp
 		{
 			this.join_delegate(0);
 			DebugManager.DefaultManager.Log("OnConnectedToServer");
+
 		}
 
 		#endregion

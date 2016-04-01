@@ -62,23 +62,23 @@ namespace AssemblyCSharp
 		/// <returns></returns>
 		public static string Serializer(Type type, object obj)
 		{
-			MemoryStream Stream = new MemoryStream();
+			MemoryStream stream = new MemoryStream();
 			XmlSerializer xml = new XmlSerializer(type);
 			try
 			{
 				//序列化对象
-				xml.Serialize(Stream, obj);
+				xml.Serialize(stream, obj);
 			}
 			catch (InvalidOperationException)
 			{
 				throw;
 			}
-			Stream.Position = 0;
-			StreamReader sr = new StreamReader(Stream);
+			stream.Position = 0;
+			StreamReader sr = new StreamReader(stream);
 			string str = sr.ReadToEnd();
 			
 			sr.Dispose();
-			Stream.Dispose();
+			stream.Dispose();
 			
 			return str;
 		}

@@ -13,7 +13,7 @@ public class LPC_GameManager : MonoBehaviour {
 		LPC_GameServer.DefaultServer.InitServer("115.28.87.227", 23466);
 	}
 
-	private LOL_UserInfo user = new LOL_UserInfo();
+	private UserInfo user = new UserInfo();
 
 	private HostData[] room_list = null;
 	private bool  isConnected = false;
@@ -77,15 +77,8 @@ public class LPC_GameManager : MonoBehaviour {
 				GUILayout.EndHorizontal();
 			}
 			
-			
 			GUILayout.EndVertical();
 		}
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-
 
 }
