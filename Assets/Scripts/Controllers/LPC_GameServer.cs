@@ -66,7 +66,7 @@ namespace AssemblyCSharp
 		public bool StartServer()
 		{
 			//start...
-			Network.InitializeServer(10,25000,!Network.HavePublicAddress());
+			Network.InitializeServer(Tags.PlayerLimit, 25000, !Network.HavePublicAddress());
 
 			return true;
 		}
@@ -181,7 +181,7 @@ namespace AssemblyCSharp
 
 		public void OnPlayerConnected(NetworkPlayer player)
 		{
-
+            
 		}
 
 		public void OnConnectedToServer()

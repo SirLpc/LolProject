@@ -35,7 +35,13 @@ public class LobbyCanvasControl : CanvasControl
         UIStartServer();
         bool suc = LPC_GameServer.DefaultServer.RegisterHost(hooks.GetGameTypeName(), hooks.GetGameName());
         if (suc)
-            GoSelectCanvas();
+        {
+            NetworkPlayerInfo npi = new NetworkPlayerInfo();
+            npi.Order = 0;
+            UserInfo.DefaultUser.Order = 0;
+            npi.Name = UserInfo.DefaultUser.Name;
+            MultyController.DefaultCtr.OnlinePlayers.Add(npi);
+        }
     }
 
     private void UIRefreshRoom()
@@ -60,10 +66,8 @@ public class LobbyCanvasControl : CanvasControl
     
     private void GoSelectCanvas(HostData roomData = null)
     {
-        UserInfo.DefaultUser.Name = UnityEngine.Random.Range(0, 100).ToString("00");
         if(roomData != null)
             DebugManager.DefaultManager.Log(roomData.connectedPlayers);
-        UserInfo.DefaultUser.Order = roomData == null ? 0 : roomData.connectedPlayers;
 
         AppDelegate.DefaultManager.ChangeCanvas(AppDelegate.DefaultManager.lobbyCanvas,
             AppDelegate.DefaultManager.selectCanvas);

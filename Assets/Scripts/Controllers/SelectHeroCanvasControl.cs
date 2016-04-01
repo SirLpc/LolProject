@@ -15,7 +15,7 @@ public class SelectHeroCanvasControl : CanvasControl
         if (hooks == null)
             return;
 
-        hooks.SpawnPlayerToSeat_SYNC();
+        //hooks.SpawnPlayerToSeat_SYNC();
     }
 
 }

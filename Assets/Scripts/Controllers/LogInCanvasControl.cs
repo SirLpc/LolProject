@@ -66,6 +66,7 @@ public class LogInCanvasControl : CanvasControl
 
         www.SetCommonHandler(onDone: result =>
         {
+            UserInfo.DefaultUser.Name = UnityEngine.Random.Range(0, 100).ToString("00");
             DebugManager.DefaultManager.Log(result.text);
         });
 
