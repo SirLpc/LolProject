@@ -8,13 +8,16 @@ public class SelectHeroCanvasHook : MonoBehaviour
     public delegate void CanvasHook();
 
     public RectTransform[] arrayOfSeatPos;
-    public GameObject playerPref;
 
     public void SpawnPlayerToSeat_SYNC()
     {
-        LPC_GameServer.DefaultServer.SpawnPlayerToSeat_RPC(arrayOfSeatPos, playerPref);
+        LPC_GameServer.DefaultServer.SpawnPlayerToSeat_RPC(
+            UserInfo.DefaultUser.Order, UserInfo.DefaultUser.Name);
     }
 
-
+    public RectTransform[] GetSeatPosS()
+    {
+        return arrayOfSeatPos;
+    }
 
 }

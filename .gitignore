@@ -24,6 +24,7 @@ Thumbs.db
 *.csproj
 *.unityproj
 *.pidb
+*.mp4
 Library/
 Temp/
 *.sln

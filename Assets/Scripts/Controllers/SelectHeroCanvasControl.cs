@@ -15,7 +15,12 @@ public class SelectHeroCanvasControl : CanvasControl
         if (hooks == null)
             return;
 
-        //hooks.SpawnPlayerToSeat_SYNC();
+        if(Network.isServer)
+            hooks.SpawnPlayerToSeat_SYNC();
     }
 
+    public RectTransform[] GetSeatPosS()
+    {
+        return hooks.GetSeatPosS();
+    }
 }

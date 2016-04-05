@@ -39,8 +39,12 @@ public class LobbyCanvasControl : CanvasControl
             NetworkPlayerInfo npi = new NetworkPlayerInfo();
             npi.Order = 0;
             UserInfo.DefaultUser.Order = 0;
+            //todo kill me for TEST! give name in login scene
+            UserInfo.DefaultUser.Name = UnityEngine.Random.Range(0, 100).ToString("00");
+
             npi.Name = UserInfo.DefaultUser.Name;
             MultyController.DefaultCtr.OnlinePlayers.Add(npi);
+            GoSelectCanvas();
         }
     }
 
@@ -55,19 +59,22 @@ public class LobbyCanvasControl : CanvasControl
 
     private void UIJoinRoom(HostData roomData)
     {
+        //todo kill me for TEST! give name in login scene
+        UserInfo.DefaultUser.Name = UnityEngine.Random.Range(0, 100).ToString("00");
+
         LPC_GameServer.DefaultServer.JoinHostRoom(roomData, (int state) =>
         {
             isConnected = state == 0;
             DebugManager.DefaultManager.Log("join success");
 
-            GoSelectCanvas(roomData);
+            GoSelectCanvas();
         });
     }
     
-    private void GoSelectCanvas(HostData roomData = null)
+    private void GoSelectCanvas()
     {
-        if(roomData != null)
-            DebugManager.DefaultManager.Log(roomData.connectedPlayers);
+        //if(roomData != null)
+        //    DebugManager.DefaultManager.Log(roomData.connectedPlayers);
 
         AppDelegate.DefaultManager.ChangeCanvas(AppDelegate.DefaultManager.lobbyCanvas,
             AppDelegate.DefaultManager.selectCanvas);
