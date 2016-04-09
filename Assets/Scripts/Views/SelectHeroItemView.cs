@@ -5,9 +5,15 @@ using UnityEngine.UI;
 public class SelectHeroItemView : MonoBehaviour
 {
     public Text nameText;
+    public Button changeHeroButton;
 
-    public void InitItem(string userName)
+    public void InitItem(string heroName)
     {
-        nameText.text = userName;
+        nameText.text = heroName;
+    }
+
+    public Button GetChangeButton()
+    {
+        return changeHeroButton;
     }
 }

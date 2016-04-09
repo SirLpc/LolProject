@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using AssemblyCSharp;
 
 public class MultyController
 {
@@ -17,11 +18,24 @@ public class MultyController
     private MultyController()
     {
         OnlinePlayers = new List<NetworkPlayerInfo>();
+        DisconnectedPlayerOrders = new Queue<int>();
     } 
     #endregion
 
     public List<NetworkPlayerInfo> OnlinePlayers;
+    public Queue<int> DisconnectedPlayerOrders; 
 
-
+    public void OnPlayerReady()
+    {
+        if (OnlinePlayers.Count >= Tags.PlayerLimit)
+        {
+            int readyPlayerNum = 0;
+            for (int i = 0; i < OnlinePlayers.Count; i++)
+                if (OnlinePlayers[i].IsReady)
+                    readyPlayerNum++;
+            if (readyPlayerNum >= Tags.PlayerLimit)
+                LPC_GameServer.DefaultServer.CountDownAndStartIfFinish_RPC();
+        }
+    }
 
 }

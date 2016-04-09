@@ -7,6 +7,7 @@ public class AppDelegate : MonoBehaviour
     public LogInCanvasControl loginCanvas;
     public LobbyCanvasControl lobbyCanvas;
     public SelectHeroCanvasControl selectCanvas;
+    public BattleCanvasController battleCanvas;
 
     void Awake()
     {

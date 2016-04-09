@@ -69,8 +69,8 @@ namespace AssemblyCSharp
         /// <returns><c>true</c>, if server was started, <c>false</c> otherwise.</returns>
         public bool StartServer()
         {
-            //start...
-            Network.InitializeServer(Tags.PlayerLimit, 25000, !Network.HavePublicAddress());
+            //start server Note! connections para must -1, as server is one not included
+            Network.InitializeServer(Tags.PlayerLimit - 1, 25000, !Network.HavePublicAddress());
 
             return true;
         }
@@ -142,12 +142,27 @@ namespace AssemblyCSharp
         {
             arrayOfSeatPos = AppDelegate.DefaultManager.selectCanvas.GetSeatPosS();
             RectTransform seatPos = arrayOfSeatPos[order];
-            playerPref = Resources.Load<GameObject>("UI/SelectHeroItem");
+            playerPref = Resources.Load<GameObject>("UI/SelectPlayerItem");
             GameObject go = GameObject.Instantiate(playerPref, seatPos.position,
                 Quaternion.identity) as GameObject;
             go.transform.SetParent(seatPos, true);
-            SelectHeroItemView shiv = go.GetComponent<SelectHeroItemView>();
+            SelectPlayerItemView shiv = go.GetComponent<SelectPlayerItemView>();
             shiv.InitItem(userName);
+        }
+
+        //==>SERVER: Destroy player when disconnected
+        public void DestroyPlayerWhenDisconnected_RPC(int order)
+        {
+            LPC_GameServer.DefalutNetworkView.RPC("DestroyPlayerWhenDisconnected", RPCMode.AllBuffered, order);
+        }
+        //ALL
+        [RPC]
+        private void DestroyPlayerWhenDisconnected(int order)
+        {
+            RectTransform seatPos = arrayOfSeatPos[order];
+            Transform tr = seatPos.GetChild(0);
+            if (tr != null)
+                GameObject.Destroy(tr.gameObject);
         }
 
         //==>COMMU: Report info to server
@@ -176,8 +191,81 @@ namespace AssemblyCSharp
             SpawnPlayerToSeat_RPC(order, clientPlayerName);
         }
 
+        //==>CLIENT: Select hero
+        //All
+        public void TellServerChangeHeroTo_RPC(int order, HeroInfo hero)
+        {
+            if (Network.isClient)
+                DefalutNetworkView.RPC("ReportNewHeroToServer", RPCMode.Server, hero.ID, order);
+            else
+                ReportNewHeroToServer(hero.ID, order);
+        }
+        //Server
+        [RPC]
+        private void ReportNewHeroToServer(int heroId, int order)
+        {
+            MultyController.DefaultCtr.OnlinePlayers[order].HeroId = heroId;
+            DefalutNetworkView.RPC("RefreshPlayersSelectedHero_UI", RPCMode.AllBuffered, heroId, order);
+        }
+        //All
+        [RPC]
+        private void RefreshPlayersSelectedHero_UI(int heroId, int order)
+        {
+            RectTransform changeHero = arrayOfSeatPos[order];
+            SelectPlayerItemView spiv = changeHero.GetComponentInChildren<SelectPlayerItemView>();
+            //todo Modify change hero's ui
+            spiv.ChangeHero(heroId);
+        }
 
+        //==>CLIENT: Player ready
+        //All
+        public void TellServerImReady_RPC(int order)
+        {
+            if (Network.isClient)
+                DefalutNetworkView.RPC("ReportReadyToServer", RPCMode.Server, order);
+            else
+                ReportReadyToServer(order);
+        }
+        //Server
+        [RPC]
+        private void ReportReadyToServer(int order)
+        {
+            MultyController.DefaultCtr.OnlinePlayers[order].IsReady = true;
+            DefalutNetworkView.RPC("RefreshPlayersReady_UI", RPCMode.AllBuffered, order);
 
+            MultyController.DefaultCtr.OnPlayerReady();
+        }
+        //All
+        [RPC]
+        private void RefreshPlayersReady_UI(int order)
+        {
+            RectTransform readyHero = arrayOfSeatPos[order];
+            SelectPlayerItemView spiv = readyHero.GetComponentInChildren<SelectPlayerItemView>();
+            //todo Modify hero's ready ui
+            spiv.Ready();
+        }
+
+        //==>SERVER: Start game when all ready
+        public void CountDownAndStartIfFinish_RPC()
+        {
+            DefalutNetworkView.RPC("CountDown_UI", RPCMode.AllBuffered);
+        }
+        //All Count Down
+        [RPC]
+        private void CountDown_UI()
+        {
+            AppDelegate.DefaultManager.selectCanvas.CountDown();
+        }
+        public void AutoStartGame_RPC()
+        {
+            DefalutNetworkView.RPC("ChangeToBattleScene", RPCMode.AllBuffered);
+        }
+        //All Start game
+        [RPC]
+        private void ChangeToBattleScene()
+        {
+            AppDelegate.DefaultManager.ChangeCanvas(AppDelegate.DefaultManager.selectCanvas, AppDelegate.DefaultManager.battleCanvas);
+        }
 
         #region Behaviour Actions
 
@@ -219,25 +307,32 @@ namespace AssemblyCSharp
         public void OnPlayerConnected(NetworkPlayer player)
         {
             NetworkPlayerInfo npi = new NetworkPlayerInfo();
-            npi.Order = MultyController.DefaultCtr.OnlinePlayers.Count;
+            if(MultyController.DefaultCtr.DisconnectedPlayerOrders.Count <= 0)
+            {
+                npi.Order = MultyController.DefaultCtr.OnlinePlayers.Count;
+            }
+            else
+            {
+                npi.Order = MultyController.DefaultCtr.DisconnectedPlayerOrders.Dequeue();
+            }
             npi.NPPlayer = player;
-            MultyController.DefaultCtr.OnlinePlayers.Add(npi);
+            MultyController.DefaultCtr.OnlinePlayers.Insert(npi.Order, npi);
             GiveAndAskInfoAndSpawnSeat_RPC(npi.NPPlayer, npi.Order);
         }
 
         public void OnPlayerDisconnected(NetworkPlayer player)
         {
-            List<NetworkPlayerInfo> players = new List<NetworkPlayerInfo>();
-            NetworkPlayerInfo npi = players.Find(p => p.NPPlayer.Equals(player));
-            players.Remove(npi);
-
+            NetworkPlayerInfo npi = MultyController.DefaultCtr.OnlinePlayers.Find(p => p.NPPlayer.Equals(player));
+            MultyController.DefaultCtr.DisconnectedPlayerOrders.Enqueue(npi.Order);
+            DestroyPlayerWhenDisconnected_RPC(npi.Order);
+            MultyController.DefaultCtr.OnlinePlayers.Remove(npi);
+            npi = null;
         }
 
         public void OnConnectedToServer()
         {
             this.join_delegate(0);
             DebugManager.DefaultManager.Log("OnConnectedToServer");
-
         }
 
         #endregion

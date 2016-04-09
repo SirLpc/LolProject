@@ -41,6 +41,7 @@ using System;
 		{
 			return LPC_XMLTool.Serializer(typeof(UserInfo),this);
 		}
-	}
+
+}
 //}
 
