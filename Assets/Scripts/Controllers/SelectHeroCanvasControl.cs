@@ -30,9 +30,9 @@ public class SelectHeroCanvasControl : CanvasControl
         return hooks.GetSeatPosS();
     }
 
-    public void CountDown()
+    public void CountDown(int count)
     {
-        hooks.CountDown();
+        hooks.CountDown(count);
     }
 
     private void UIChangeHero(HeroInfo hero)

@@ -181,6 +181,7 @@ namespace AssemblyCSharp
         private void GiveAndAskInfo(int order)
         {
             UserInfo.DefaultUser.Order = order;
+            UserInfo.DefaultUser.Troop = order / (Tags.PlayerLimit / Tags.TroopNum);
             DefalutNetworkView.RPC("ReplyInfoAndSpawnSeat", RPCMode.Server, UserInfo.DefaultUser.Name, order);
         }
         //Server
@@ -246,24 +247,30 @@ namespace AssemblyCSharp
         }
 
         //==>SERVER: Start game when all ready
-        public void CountDownAndStartIfFinish_RPC()
+        public void CountDownAndStartIfFinish_RPC(int count)
         {
-            DefalutNetworkView.RPC("CountDown_UI", RPCMode.AllBuffered);
+            DefalutNetworkView.RPC("CountDown_UI", RPCMode.AllBuffered, count);
         }
-        //All Count Down
+        //All Start or Stop(count == Tags.StopCountFlag) Count Down
         [RPC]
-        private void CountDown_UI()
+        private void CountDown_UI(int count)
         {
-            AppDelegate.DefaultManager.selectCanvas.CountDown();
+            AppDelegate.DefaultManager.selectCanvas.CountDown(count);
         }
         public void AutoStartGame_RPC()
         {
-            DefalutNetworkView.RPC("ChangeToBattleScene", RPCMode.AllBuffered);
+            string playersXml = LPC_XMLTool.Serializer(typeof(List<NetworkPlayerInfo>), MultyController.DefaultCtr.OnlinePlayers);
+            DefalutNetworkView.RPC("SyncPlayersAndChangeToBattleScene", RPCMode.AllBuffered, playersXml);
         }
         //All Start game
         [RPC]
-        private void ChangeToBattleScene()
+        private void SyncPlayersAndChangeToBattleScene(string playersXml)
         {
+            if(!Network.isServer)
+            {
+                MultyController.DefaultCtr.OnlinePlayers = 
+                    LPC_XMLTool.Deserialize(typeof(List<NetworkPlayerInfo>), playersXml) as List<NetworkPlayerInfo>;
+            }
             AppDelegate.DefaultManager.ChangeCanvas(AppDelegate.DefaultManager.selectCanvas, AppDelegate.DefaultManager.battleCanvas);
         }
 
@@ -315,6 +322,7 @@ namespace AssemblyCSharp
             {
                 npi.Order = MultyController.DefaultCtr.DisconnectedPlayerOrders.Dequeue();
             }
+            npi.Troop = npi.Order / (Tags.PlayerLimit / Tags.TroopNum);
             npi.NPPlayer = player;
             MultyController.DefaultCtr.OnlinePlayers.Insert(npi.Order, npi);
             GiveAndAskInfoAndSpawnSeat_RPC(npi.NPPlayer, npi.Order);
@@ -322,11 +330,17 @@ namespace AssemblyCSharp
 
         public void OnPlayerDisconnected(NetworkPlayer player)
         {
-            NetworkPlayerInfo npi = MultyController.DefaultCtr.OnlinePlayers.Find(p => p.NPPlayer.Equals(player));
-            MultyController.DefaultCtr.DisconnectedPlayerOrders.Enqueue(npi.Order);
-            DestroyPlayerWhenDisconnected_RPC(npi.Order);
-            MultyController.DefaultCtr.OnlinePlayers.Remove(npi);
-            npi = null;
+            if (AppDelegate.CurrentStage == GameStage.READY_COUNTING)
+                CountDownAndStartIfFinish_RPC(Tags.StopCountFlag);
+
+            if(AppDelegate.CurrentStage == GameStage.SELECT_HERO || AppDelegate.CurrentStage == GameStage.READY_COUNTING)
+            {
+                NetworkPlayerInfo npi = MultyController.DefaultCtr.OnlinePlayers.Find(p => p.NPPlayer.Equals(player));
+                MultyController.DefaultCtr.DisconnectedPlayerOrders.Enqueue(npi.Order);
+                DestroyPlayerWhenDisconnected_RPC(npi.Order);
+                MultyController.DefaultCtr.OnlinePlayers.Remove(npi);
+                npi = null;
+            }
         }
 
         public void OnConnectedToServer()

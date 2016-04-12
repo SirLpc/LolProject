@@ -51,10 +51,17 @@ public class SelectHeroCanvasHook : MonoBehaviour
     }
 
     private int countTimer;
-    public void CountDown()
+    public void CountDown(int count)
     {
-        countTimer = Tags.ReadyToStartSeconds;
-        InvokeRepeating("IvCountDown", 0f, 1f);
+        countTimer = count;
+        if (count == Tags.StopCountFlag)
+        {
+            CancelInvoke("IvCountDown");
+        }
+        else
+        {
+            InvokeRepeating("IvCountDown", 0f, 1f);
+        }
     }
     private void IvCountDown()
     {

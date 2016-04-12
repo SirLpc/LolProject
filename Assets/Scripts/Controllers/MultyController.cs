@@ -27,6 +27,12 @@ public class MultyController
 
     public void OnPlayerReady()
     {
+        if (!Network.isServer)
+        {
+            Debug.LogWarning("Only SERVER can call this Method!");
+            return;
+        }
+
         if (OnlinePlayers.Count >= Tags.PlayerLimit)
         {
             int readyPlayerNum = 0;
@@ -34,7 +40,10 @@ public class MultyController
                 if (OnlinePlayers[i].IsReady)
                     readyPlayerNum++;
             if (readyPlayerNum >= Tags.PlayerLimit)
-                LPC_GameServer.DefaultServer.CountDownAndStartIfFinish_RPC();
+            {
+                AppDelegate.CurrentStage = GameStage.READY_COUNTING;
+                LPC_GameServer.DefaultServer.CountDownAndStartIfFinish_RPC(Tags.ReadyToStartSeconds);
+            }
         }
     }
 

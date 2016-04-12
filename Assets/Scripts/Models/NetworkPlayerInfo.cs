@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class NetworkPlayerInfo
 {
@@ -7,5 +8,7 @@ public class NetworkPlayerInfo
     public string Name { get; set; }
     public int HeroId { get; set; }
     public bool IsReady { get; set; }
+    public int Troop { get; set; }
+    
     public NetworkPlayer NPPlayer { get; set; }
 }

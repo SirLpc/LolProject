@@ -13,6 +13,7 @@ public class LogInCanvasControl : CanvasControl
     {
         base.Show();
 
+        AppDelegate.CurrentStage = GameStage.LOGIN;
         hooks = canvas.GetComponent<LoginCanvasHook>();
         if (hooks == null)
             return;

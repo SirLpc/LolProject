@@ -20,6 +20,7 @@ using System;
         public string Server { get; set; }
 
         public int Order { get; set; }
+        public int Troop { get; set; }
         public string ViewId { get; set; }
         public HeroInfo Hero { get; set; }
 
@@ -42,6 +43,6 @@ using System;
 			return LPC_XMLTool.Serializer(typeof(UserInfo),this);
 		}
 
-}
+    }
 //}
 

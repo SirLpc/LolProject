@@ -13,6 +13,7 @@ public class LobbyCanvasControl : CanvasControl
     {
         base.Show();
 
+        AppDelegate.CurrentStage = GameStage.SELECT_HERO;
         hooks = canvas.GetComponent<LobbyCavasHook>();
         if (hooks == null)
             return;
@@ -38,7 +39,10 @@ public class LobbyCanvasControl : CanvasControl
         {
             NetworkPlayerInfo npi = new NetworkPlayerInfo();
             npi.Order = 0;
+            int troop = npi.Order / (Tags.PlayerLimit / Tags.TroopNum);
+            npi.Troop = troop;
             UserInfo.DefaultUser.Order = 0;
+            UserInfo.DefaultUser.Troop = troop;
             //todo kill me for TEST! give name in login scene
             UserInfo.DefaultUser.Name = UnityEngine.Random.Range(0, 100).ToString("00");
 
